@@ -48,7 +48,7 @@ class PlotRate extends PluginBase
         $myPlotCmds->loadSubCommand(new RateCommand($this));
         $myPlotCmds->loadSubCommand(new EditratingCommand($this));
         $myPlotCmds->loadSubCommand(new UnrateCommand($this));
-        $this->getServer()->getCommandMap()->register("PlotRate", new PlotRateCommand());
+        $this->getServer()->getCommandMap()->register("PlotRate", new PlotRateCommand($this));
     }
 
     /**
