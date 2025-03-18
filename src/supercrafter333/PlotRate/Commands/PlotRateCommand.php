@@ -85,14 +85,14 @@ class PlotRateCommand extends Command
                 $s->sendMessage("§eInformations of PlotRate: §r\n\n§7Made by: §rsupercrafter333\n§7Update by : §rNuhDev§7Helpers: §r---\n§7Icon by: §rShxGux\n§7License: §rApache 2.0 License\n§7GitHub: §rhttps://github.com/supercrafter333/PlotRate\n§7Poggit: §rhttps://poggit.pmmp.io/p/PlotRate\n\n§e-----------------------");
                 return;
                 break;
-            case "editrating"
-            case "er"
+            case "editrating":
+            case "er":
             if (empty($args[0])) {
-            $s->sendMessage("§4Use: §r/p editrating <rating: 0-5>");
+            $s->sendMessage("§4Use: §r/pr editrating <rating: 0-5>");
             return;
         }
         if ((int)$args[0] < 0 || (int)$args[0] > 5) {
-            $s->sendMessage("§4Use: §r/p editrating <rating: 0-5>");
+            $s->sendMessage("§4Use: §r/pr editrating <rating: 0-5>");
             return;
         }
         $plot = MyPlot::getInstance()->getPlotByPosition($s);
@@ -104,8 +104,27 @@ class PlotRateCommand extends Command
             $s->sendMessage(PlotRate::getInstance()->getConfig()->get("not-in-plot"));
             return;
            }
-            break;
+        break;
+
+        case "rate":
+        if (empty($args[0])) {
+            $s->sendMessage("§4Use: §r/pr rate <rating: 0-5>");
+            return true;
         }
+        if ((int)$args[0] < 0 || (int)$args[0] > 5) {
+            $s->sendMessage("§4Use: §r/pr rate <rating: 0-5>");
+            return true;
+        }
+        $plot = MyPlot::getInstance()->getPlotByPosition($s);
+        if ($plot instanceof Plot) {
+            PlotRate::getInstance()->ratePlot($plot, (int)$args[0]);
+            $s->sendMessage(str_replace("{rating}", (string)$args[0], PlotRate::getInstance()->getConfig()->get("rated")));
+        } else {
+            $s->sendMessage(PlotRate::getInstance()->getConfig()->get("not-in-plot"));
+        }
+        return;
+        break;
+        
     }
 
     /**
