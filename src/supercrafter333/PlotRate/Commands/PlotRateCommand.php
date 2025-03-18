@@ -5,8 +5,7 @@ namespace supercrafter333\PlotRate\Commands;
 use MyPlot\MyPlot;
 use pocketmine\command\Command;
 use pocketmine\command\CommandSender;
-use pocketmine\command\PluginIdentifiableCommand;
-use pocketmine\Player;
+use pocketmine\player\Player;
 use pocketmine\plugin\Plugin;
 use supercrafter333\PlotRate\PlotRate;
 
@@ -14,13 +13,8 @@ use supercrafter333\PlotRate\PlotRate;
  * Class PlotRateCommand
  * @package supercrafter333\PlotRate\Commands
  */
-class PlotRateCommand extends Command implements PluginIdentifiableCommand
+class PlotRateCommand extends Command
 {
-
-    /**
-     * @var string[]
-     */
-    private $subCmds = ["help" => "Open the help page.", "a/rand/random" => "Teleport you to a random players plot.", "info" => "Get more informations about PlotRate."];
 
     /**
      * PlotRateCommand constructor.
@@ -29,10 +23,10 @@ class PlotRateCommand extends Command implements PluginIdentifiableCommand
      * @param string $usageMessage
      * @param array|string[] $aliases
      */
-    public function __construct(string $name = "plotrate", string $description = "PlotRate -> A plugin to rate your plots!", string $usageMessage = "§4Usage: §r/plotrate help", array $aliases = ["pr"])
+    public function __construct()
     {
-        $this->setPermission("plotrate.plotrate.cmd");
-        parent::__construct($name, $description, $usageMessage, $aliases);
+        parent::__construct("pr", "plotrate command");
+        $this->setPermission("plotrate.cmd");
     }
 
     /**
@@ -87,7 +81,7 @@ class PlotRateCommand extends Command implements PluginIdentifiableCommand
                 return;
                 break;
             case "info":
-                $s->sendMessage("§eInformations of PlotRate: §r\n\n§7Made by: §rsupercrafter333\n§7Helpers: §r---\n§7Icon by: §rShxGux\n§7License: §rApache 2.0 License\n§7GitHub: §rhttps://github.com/supercrafter333/PlotRate\n§7Poggit: §rhttps://poggit.pmmp.io/p/PlotRate\n\n§e-----------------------");
+                $s->sendMessage("§eInformations of PlotRate: §r\n\n§7Made by: §rsupercrafter333\n§7Update by : §rNuhDev§7Helpers: §r---\n§7Icon by: §rShxGux\n§7License: §rApache 2.0 License\n§7GitHub: §rhttps://github.com/supercrafter333/PlotRate\n§7Poggit: §rhttps://poggit.pmmp.io/p/PlotRate\n\n§e-----------------------");
                 return;
                 break;
         }
