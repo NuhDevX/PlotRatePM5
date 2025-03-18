@@ -4,13 +4,8 @@ api: 5.0.0
 main: supercrafter333\PlotRate\PlotRate
 author: supercrafter333, ZhaDev
 load: POSTWORLD
-depend: MyPlot
-commands: 
- pr:
-  description: plotrate command
-  permission: plot.cmd
-  
+depend:
+  - MyPlot
 permissions:
- plot.cmd:
-  default: true
-  
+  plotrate.cmd:
+    default: true
