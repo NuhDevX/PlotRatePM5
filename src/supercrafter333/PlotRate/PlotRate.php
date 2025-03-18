@@ -32,17 +32,16 @@ class PlotRate extends PluginBase
     /**
      * On plugin loading. (That's before enabling)
      */
-    public function onLoad()
+    public function onLoad(): void 
     {
         self::$instance = $this;
         $this->saveResource("config.yml");
-        $this->versionCheck(false); //UPDATE: false
     }
 
     /**
      * On plugin enabling.
      */
-    public function onEnable()
+    public function onEnable(): void
     {
         $this->getServer()->getPluginManager()->registerEvents(new EventListener(), $this);
         $myPlotCmds = $this->getServer()->getCommandMap()->getCommand('plot');
@@ -55,32 +54,12 @@ class PlotRate extends PluginBase
     /**
      * On plugin disabling
      */
-    public function onDisable()
+    public function onDisable(): void
     {
         $myPlotCmds = $this->getServer()->getCommandMap()->getCommand('plot');
         $myPlotCmds->unloadSubCommand("rate");
         $myPlotCmds->unloadSubCommand("editrating");
         $myPlotCmds->unloadSubCommand("unrate");
-    }
-
-    /**
-     * Check the version of PlotRate.
-     *
-     * @param bool $update
-     */
-    private function versionCheck(bool $update = true)
-    {
-        if (!$this->getConfig()->exists("version") || $this->getConfig()->get("version") !== self::VERSION) {
-            if ($update == true) {
-                $this->getLogger()->debug("OUTDATED CONFIG.YML!! You config.yml is outdated! Your config.yml will automatically updated!");
-                if (file_exists($this->getDataFolder() . "oldConfig.yml")) unlink($this->getDataFolder() . "oldConfig.yml");
-                rename($this->getDataFolder() . "config.yml", $this->getDataFolder() . "oldConfig.yml");
-                $this->saveResource("config.yml");
-                $this->getLogger()->debug("config.yml Updated for version: §b" . (self::VERSION) . "");
-            } else {
-                $this->getLogger()->warning("Your config.yml is outdated but that's not so bad.");
-            }
-        }
     }
 
     /**
