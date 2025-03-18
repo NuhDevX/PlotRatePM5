@@ -10,49 +10,45 @@ use pocketmine\player\Player;
 use pocketmine\plugin\Plugin;
 use supercrafter333\PlotRate\PlotRate;
 
-/**
- * Class PlotRateCommand
- * @package supercrafter333\PlotRate\Commands
- */
 class PlotRateCommand extends Command
 {
+    private array $subCmds = [
+        "help" => "Menampilkan daftar perintah",
+        "a" => "Teleport ke plot acak",
+        "info" => "Menampilkan informasi plugin",
+        "editrating" => "Edit rating plot",
+        "rate" => "Memberikan rating plot",
+        "unrate" => "Menghapus rating plot"
+    ];
 
-    /**
-     * PlotRateCommand constructor.
-     * @param string $name
-     * @param string $description
-     * @param string $usageMessage
-     * @param array|string[] $aliases
-     */
     public function __construct()
     {
-        parent::__construct("pr", "plotrate command");
+        parent::__construct("pr", "PlotRate command");
         $this->setPermission("plotrate.cmd");
+        $this->setUsage("/pr <subcommand>");
     }
 
-    /**
-     * @param CommandSender $s
-     * @param string $commandLabel
-     * @param array $args
-     */
     public function execute(CommandSender $s, string $commandLabel, array $args): void
     {
-        $pl = PlotRate::getInstance();
-        $cfg = $pl->getConfig();
+        if (!$this->testPermission($s)) return;
+
         if (empty($args[0])) {
-            $s->sendMessage($this->usageMessage);
+            $s->sendMessage($this->getUsage());
             return;
         }
-        if (!$this->testPermission($s)) return;
-        $subCmd = array_shift($args);
+
+        $pl = PlotRate::getInstance();
+        $cfg = $pl->getConfig();
+        $subCmd = strtolower(array_shift($args));
+
         switch ($subCmd) {
             case "help":
                 $s->sendMessage("§eHelp list of PlotRate: \n");
-                foreach ($this->subCmds as $subCmd => $desc) {
-                    $s->sendMessage("§7/plotrate $subCmd §b- §8$desc");
+                foreach ($this->subCmds as $cmd => $desc) {
+                    $s->sendMessage("§7/plotrate $cmd §b- §8$desc");
                 }
-                $s->sendMessage("\n§e-------------------------");
-                break;
+                return;
+
             case "a":
             case "rand":
             case "random":
@@ -62,74 +58,66 @@ class PlotRateCommand extends Command
                 }
                 $matches = [];
                 foreach ($pl->getServer()->getOnlinePlayers() as $onlinePlayer) {
-                    $plot = MyPlot::getInstance()->getPlotByPosition($onlinePlayer);
-                    if ($plot !== null) {
-                        if ($plot->owner === $onlinePlayer->getName())
+                    $plot = MyPlot::getInstance()->getPlotByPosition($onlinePlayer->getPosition());
+                    if ($plot !== null && $plot->owner === $onlinePlayer->getName()) {
                         $matches[] = $onlinePlayer->getName();
                     }
                 }
-                $matchCount = count($matches, COUNT_RECURSIVE);
-                if ($matchCount <= 0) {
+                if (empty($matches)) {
                     $s->sendMessage($cfg->get("pr-a-noMatches"));
                     return;
                 }
-                $XplayerName = array_rand($matches);
-                $playerName = $matches[$XplayerName];
-                $player = $pl->getServer()->getPlayer($playerName);
-                $plot = MyPlot::getInstance()->getPlotByPosition($player);
-                $s->teleport($player);
-                $s->sendMessage(str_replace(["{plot}", "{owner}"], [(string)$plot->X . ';' . (string)$plot->Z, $plot->owner], $cfg->get("pr-a-success")));
+                $playerName = $matches[array_rand($matches)];
+                $player = $pl->getServer()->getPlayerExact($playerName);
+
+                if ($s instanceof Player && $player instanceof Player) {
+                    $s->teleport($player->getPosition());
+                    $plot = MyPlot::getInstance()->getPlotByPosition($player->getPosition());
+                    $s->sendMessage(str_replace(["{plot}", "{owner}"], [$plot->X . ';' . $plot->Z, $plot->owner], $cfg->get("pr-a-success")));
+                }
                 return;
-                break;
+
             case "info":
-                $s->sendMessage("§eInformations of PlotRate: §r\n\n§7Made by: §rsupercrafter333\n§7Update by : §rNuhDev§7Helpers: §r---\n§7Icon by: §rShxGux\n§7License: §rApache 2.0 License\n§7GitHub: §rhttps://github.com/supercrafter333/PlotRate\n§7Poggit: §rhttps://poggit.pmmp.io/p/PlotRate\n\n§e-----------------------");
+                $s->sendMessage("§eInformations of PlotRate:\n\n§7Made by: §rsupercrafter333\n§7Update by: §rNuhDev\n§7License: §rApache 2.0\n§7GitHub: §rhttps://github.com/supercrafter333/PlotRate\n\n§e-----------------------");
                 return;
-                break;
+
             case "editrating":
             case "er":
-            if (empty($args[0])) {
-            $s->sendMessage("§4Use: §r/pr editrating <rating: 0-5>");
-            return;
-        }
-        if ((int)$args[0] < 0 || (int)$args[0] > 5) {
-            $s->sendMessage("§4Use: §r/pr editrating <rating: 0-5>");
-            return;
-        }
-        $plot = MyPlot::getInstance()->getPlotByPosition($s);
-        if ($plot instanceof Plot) {
-            PlotRate::getInstance()->ratePlot($plot, (int)$args[0]);
-            $s->sendMessage(str_replace("{rating}", (string)$args[0], PlotRate::getInstance()->getConfig()->get("rating-edited")));
-            return;
-        } else {
-            $s->sendMessage(PlotRate::getInstance()->getConfig()->get("not-in-plot"));
-            return;
-           }
-        break;
+            case "rate":
+                if (empty($args[0]) || (int)$args[0] < 0 || (int)$args[0] > 5) {
+                    $s->sendMessage("§4Use: §r/pr {$subCmd} <rating: 0-5>");
+                    return;
+                }
+                if ($s instanceof Player) {
+                    $plot = MyPlot::getInstance()->getPlotByPosition($s->getPosition());
+                    if ($plot instanceof Plot) {
+                        PlotRate::getInstance()->ratePlot($plot, (int)$args[0]);
+                        $s->sendMessage(str_replace("{rating}", (string)$args[0], $cfg->get("rated")));
+                    } else {
+                        $s->sendMessage($cfg->get("not-in-plot"));
+                    }
+                }
+                return;
 
-        case "rate":
-        if (empty($args[0])) {
-            $s->sendMessage("§4Use: §r/pr rate <rating: 0-5>");
-            return true;
+            case "unrate":
+            case "ur":
+                if ($s instanceof Player) {
+                    $plot = MyPlot::getInstance()->getPlotByPosition($s->getPosition());
+                    if ($plot instanceof Plot) {
+                        if (!PlotRate::getInstance()->isRated($plot)) {
+                            $s->sendMessage($cfg->get("not-rated"));
+                            return;
+                        }
+                        PlotRate::getInstance()->unratePlot($plot);
+                        $s->sendMessage($cfg->get("unrated"));
+                    } else {
+                        $s->sendMessage($cfg->get("not-in-plot"));
+                    }
+                }
+                return;
         }
-        if ((int)$args[0] < 0 || (int)$args[0] > 5) {
-            $s->sendMessage("§4Use: §r/pr rate <rating: 0-5>");
-            return true;
-        }
-        $plot = MyPlot::getInstance()->getPlotByPosition($s);
-        if ($plot instanceof Plot) {
-            PlotRate::getInstance()->ratePlot($plot, (int)$args[0]);
-            $s->sendMessage(str_replace("{rating}", (string)$args[0], PlotRate::getInstance()->getConfig()->get("rated")));
-        } else {
-            $s->sendMessage(PlotRate::getInstance()->getConfig()->get("not-in-plot"));
-        }
-        return;
-        break;
-        
     }
 
-    /**
-     * @return Plugin
-     */
     public function getPlugin(): Plugin
     {
         return PlotRate::getInstance();
