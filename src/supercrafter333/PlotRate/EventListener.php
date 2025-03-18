@@ -17,9 +17,8 @@ class EventListener implements Listener
     /**
      * @param MyPlotPlayerEnterPlotEvent $event
      */
-    public function onPlotEnter(MyPlotPlayerEnterPlotEvent $event)
+    public function onPlotEnter(MyPlotPlayerEnterPlotEvent $event): void
     {
-        $event->setCancelled(false);
         $player = $event->getPlayer();
         $name = $player->getName();
         $plot = $event->getPlot();
@@ -49,7 +48,7 @@ class EventListener implements Listener
     /**
      * @param MyPlotClearEvent $event
      */
-    public function onPlotClear(MyPlotClearEvent $event)
+    public function onPlotClear(MyPlotClearEvent $event): void
     {
         $plot = $event->getPlot();
         $pr = PlotRate::getInstance();
@@ -59,7 +58,7 @@ class EventListener implements Listener
     /**
      * @param MyPlotResetEvent $event
      */
-    public function onPlotReset(MyPlotResetEvent $event)
+    public function onPlotReset(MyPlotResetEvent $event): void
     {
         $plot = $event->getPlot();
         $pr = PlotRate::getInstance();
