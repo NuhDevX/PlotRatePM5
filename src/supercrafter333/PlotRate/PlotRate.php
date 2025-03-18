@@ -18,13 +18,6 @@ class PlotRate extends PluginBase
 {
 
     /**
-     * That's the version of PlotRate.
-     *
-     * @var string|float
-     */
-    public const VERSION = "1.1.2";
-
-    /**
      * @var self
      */
     protected static PlotRate $instance;
@@ -43,24 +36,10 @@ class PlotRate extends PluginBase
      */
     public function onEnable(): void
     {
-        $this->getServer()->getPluginManager()->registerEvents(new EventListener(), $this);
-        $myPlotCmds = $this->getServer()->getCommandMap()->getCommand('plot');
-        $myPlotCmds->loadSubCommand(new RateCommand($this));
-        $myPlotCmds->loadSubCommand(new EditratingCommand($this));
-        $myPlotCmds->loadSubCommand(new UnrateCommand($this));
+        $this->getServer()->getPluginManager()->registerEvents(new EventListener($this), $this);
         $this->getServer()->getCommandMap()->register("PlotRate", new PlotRateCommand($this));
     }
 
-    /**
-     * On plugin disabling
-     */
-    public function onDisable(): void
-    {
-        $myPlotCmds = $this->getServer()->getCommandMap()->getCommand('plot');
-        $myPlotCmds->unloadSubCommand("rate");
-        $myPlotCmds->unloadSubCommand("editrating");
-        $myPlotCmds->unloadSubCommand("unrate");
-    }
 
     /**
      * @return static
